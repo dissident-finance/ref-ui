@@ -347,7 +347,12 @@ export const getMethodName = async (transaction: any, txHashes?: any) => {
     (a: any) => a?.['FunctionCall']?.method_name === 'withdraw'
   );
 
-  const args = parsedLog(transaction?.actions[0]?.['FunctionCall']?.args);
+  let args: any;
+
+  try {
+    args = parsedLog(transaction?.actions[0]?.['FunctionCall']?.args);
+  } catch (error) {}
+
   const methodFromAccountPage = localStorage.getItem(
     REF_FI_ACCOUNT_PAGE_WITHDRAW
   );
@@ -401,7 +406,82 @@ export const usePopUp = ({ globalState }: { globalState: any }) => {
 
   // general toast
   useEffect(() => {
+    if (pathname === '/farms') return;
+
     if (txHash && isSignedIn && txHashes) {
+      console.log(txHash, isSignedIn, txHashes);
+      checkTransaction(txHash)
+        .then(async (res: any) => {
+          const errorMsg = getErrorMessage(res);
+          const transaction = res.transaction;
+
+          const methodName = await getMethodName(transaction, txHashes);
+
+          const isAurora = res?.transaction?.receiver_id === 'aurora';
+
+          console.log(methodName);
+
+          const ifCall =
+            res?.transaction?.actions?.length === 1 &&
+            res?.transaction?.actions?.[0]?.FunctionCall?.method_name ===
+              'call';
+
+          const isSwapPro = txHashes?.length > 1 && isAurora && ifCall;
+
+          return {
+            isSwapPro,
+            errorMsg,
+            methodName,
+          };
+        })
+        .then(({ errorMsg, isSwapPro, methodName }) => {
+          if (isSwapPro) {
+            checkCrossSwapTransactions(txHashes);
+          } else if (errorMsg) {
+            failToast(txHash);
+          } else {
+            swapToast(txHash, methodNameParser(methodName));
+          }
+          replaceHistoryState();
+        });
+    }
+  }, [txHash, isSignedIn, txHashes]);
+};
+
+export const usePopUpAfterLoadingDone = ({
+  globalState,
+  showPopUp,
+}: {
+  globalState: any;
+  showPopUp: boolean;
+}) => {
+  const { txHash, pathname, signInErrorType, txHashes, errorCode } =
+    getURLInfo();
+
+  if (errorCode) localStorage.removeItem(REF_FI_ACCOUNT_PAGE_WITHDRAW);
+
+  const replaceHistoryState = () =>
+    window.history.replaceState({}, '', window.location.origin + pathname);
+
+  const isSignedIn = globalState.isSignedIn;
+
+  // sender signInError
+  useEffect(() => {
+    if (signInErrorType) {
+      senderSignedInToast(signInErrorType);
+      removeSenderLoginRes();
+      replaceHistoryState();
+    }
+  }, [signInErrorType]);
+
+  // general toast
+  useEffect(() => {
+    if (pathname !== '/farms' || !showPopUp) return;
+
+    console.log(showPopUp, txHash, isSignedIn);
+
+    if (txHash && isSignedIn && txHashes) {
+      replaceHistoryState();
       checkTransaction(txHash)
         .then(async (res: any) => {
           const errorMsg = getErrorMessage(res);
@@ -435,5 +515,5 @@ export const usePopUp = ({ globalState }: { globalState: any }) => {
           replaceHistoryState();
         });
     }
-  }, [txHash, isSignedIn, txHashes]);
+  }, [txHash, isSignedIn, txHashes, showPopUp]);
 };

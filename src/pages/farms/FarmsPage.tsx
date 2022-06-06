@@ -88,6 +88,7 @@ import { scientificNotationToString } from '../../utils/numbers';
 import { getPrice } from '~services/xref';
 import { get24hVolume } from '~services/indexer';
 import { PoolRPCView } from '~services/api';
+import { usePopUpAfterLoadingDone } from '../../components/layout/transactionTipPopUp';
 
 const config = getConfig();
 const STABLE_POOL_ID = config.STABLE_POOL_ID;
@@ -150,11 +151,14 @@ export function FarmsPage() {
   const [count, setCount] = useState(0);
   const [commonSeedFarms, setCommonSeedFarms] = useState({});
   const [dayVolumeMap, setDayVolumeMap] = useState({});
+  const [showPopUp, setShowPopUp] = useState(false);
 
   const { wallet } = getCurrentWallet();
 
   const { globalState } = useContext(WalletContext);
   const isSignedIn = globalState.isSignedIn;
+
+  usePopUpAfterLoadingDone({ globalState, showPopUp });
 
   useEffect(() => {
     loadFarmInfoList(false, isSignedIn).then();
@@ -336,6 +340,7 @@ export function FarmsPage() {
       }
     }
     setUnclaimedFarmsIsLoading(false);
+    setShowPopUp(true);
     getTokenSinglePrice(farms, rewardList, tokenPriceList);
     const [mergeFarms, commonSeedFarms] = composeFarms(farms);
     searchByCondition(mergeFarms, commonSeedFarms);
