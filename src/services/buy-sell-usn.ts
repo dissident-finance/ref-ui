@@ -6,7 +6,7 @@ import {
   executeMultipleTransactions,
   ONE_YOCTO_NEAR,
 } from './near';
-import { wallet } from './near';
+import { wallet, REF_FI_CONTRACT_ID } from './near';
 import { toNonDivisibleNumber } from '../utils/numbers';
 const { networkId, USN_ID } = getConfig();
 
@@ -19,7 +19,7 @@ export const fetchMultiplier = async () => {
       args_base64: btoa(
         `{"asset_ids": ["wrap.${
           networkId === 'mainnet' ? 'near' : 'testnet'
-        }"]}`
+        }","wrap.${networkId === 'mainnet' ? 'near' : 'testnet'}#3600"]}`
       ),
       finality: 'final',
     });
@@ -29,7 +29,19 @@ export const fetchMultiplier = async () => {
       response.result.map((x: any) => String.fromCharCode(x)).join('')
     );
 
-    return res.prices[0].price;
+    const rates = res.prices.map((p: any) => p.price);
+    // return res.prices[0].price;
+
+    return wallet
+      .account()
+      .viewFunction(USN_ID, 'predict_buy', {
+        account: REF_FI_CONTRACT_ID,
+        amount: '1000000000000000000000000',
+        rates,
+      })
+      .then((res) => {
+        return res.rate;
+      });
   } catch (error) {
     console.warn('Failed to load ', error);
   }
