@@ -32,6 +32,8 @@ export const fetchMultiplier = async () => {
     const rates = res.prices.map((p: any) => p.price);
     // return res.prices[0].price;
 
+    console.log('previous price', res.prices[0].price);
+
     return wallet
       .account()
       .viewFunction(USN_ID, 'predict_buy', {
@@ -40,6 +42,7 @@ export const fetchMultiplier = async () => {
         rates,
       })
       .then((res) => {
+        console.log('current price', res.rate);
         return res.rate;
       });
   } catch (error) {
