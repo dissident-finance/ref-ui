@@ -539,5 +539,6 @@ const zh_CN = {
   near_value: 'NEAR价值',
   borrow: '借',
   burrow_usn_tip: '你可以通过Burrow来借USN.',
+  test_main_commit: '测试main提交',
 };
 export default Object.assign(zh_CN, zh_CN_in_risks_page);
