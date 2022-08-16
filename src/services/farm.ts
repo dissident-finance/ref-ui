@@ -675,7 +675,7 @@ export const withdrawAllReward_boost = async (
       args: {
         token_id: token_id,
       },
-      gas: '50000000000000',
+      gas: '40000000000000',
     });
   });
   const resolvedBalanceList = await Promise.all(ftBalancePromiseList);
