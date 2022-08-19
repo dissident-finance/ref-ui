@@ -308,6 +308,9 @@ export const getPoolsByTokens = async ({
       .filter(filterBlackListPools);
 
     await db.cachePoolsByTokens(filtered_pools);
+
+    console.log('Cached pools successfull', filtered_pools);
+
     filtered_pools = filtered_pools.filter(
       (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
