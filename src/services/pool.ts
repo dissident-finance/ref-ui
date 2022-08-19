@@ -291,11 +291,16 @@ export const getPoolsByTokens = async ({
     setLoadingData && setLoadingData(true);
     const totalPools = await getTotalPools();
     const pages = Math.ceil(totalPools / DEFAULT_PAGE_LIMIT);
+
+    console.log('start getting all pools');
+
     const pools = (
       await Promise.all([...Array(pages)].map((_, i) => getAllPools(i + 1)))
     )
       .flat()
       .map((p) => ({ ...p, Dex: 'ref' }));
+
+    console.log('get all pools done');
 
     let triPools;
     if (crossSwap) {
@@ -307,14 +312,20 @@ export const getPoolsByTokens = async ({
       .filter(isNotStablePool)
       .filter(filterBlackListPools);
 
+    console.log('start caching');
+
     await db.cachePoolsByTokens(filtered_pools);
 
-    console.log('Cached pools successfull', filtered_pools);
+    console.log('Cached pools successfully', filtered_pools);
 
     filtered_pools = filtered_pools.filter(
       (p) => p.supplies[tokenInId] && p.supplies[tokenOutId]
     );
+
+    console.log('start caching stable pools');
     await getAllStablePoolsFromCache();
+
+    console.log('get stable pools successfully');
   }
   setLoadingData && setLoadingData(false);
 
