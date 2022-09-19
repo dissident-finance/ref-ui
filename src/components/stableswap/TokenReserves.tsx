@@ -28,6 +28,23 @@ import {
 } from '../../services/near';
 import getConfig from '../../services/config';
 
+const colorMainnet = {
+  '6b175474e89094c44da98b954eedeac495271d0f.factory.bridge.near':
+    'rgba(255, 199, 0, 0.45)',
+  'dac17f958d2ee523a2206206994597c13d831ec7.factory.bridge.near':
+    'rgba(0, 198, 162, 0.47)',
+  'a0b86991c6218b36c1d19d4a2e9eb0ce3606eb48.factory.bridge.near':
+    'rgba(0, 163, 255, 0.45)',
+  usn: 'rgba(255, 255, 255, 0.45)',
+  'cusd.token.a11bd.near': 'rgba(69, 205, 133, 0.6)',
+  '0316eb71485b0ab14103307bf65a021042c6d380.factory.bridge.near': '#4D85F8',
+  '2260fac5e5542a773aa44fbcfedf7c193bc2c599.factory.bridge.near': '#ED9234',
+  'meta-pool.near': 'rgba(160, 160, 255, 0.5)',
+  'wrap.near': 'rgba(0, 198, 162, 0.5)',
+  'linear-protocol.near': 'rgba(64, 129, 255, 0.5)',
+  'nearx.stader-labs.near': '#4d5971',
+};
+
 export function OnlyTokenReserves() {}
 
 function TokenChart({
@@ -52,20 +69,6 @@ function TokenChart({
       displayV: tokensData[token.id].display2,
     };
   });
-  const color = {
-    DAI: 'rgba(255, 199, 0, 0.45)',
-    USDT: 'rgba(0, 198, 162, 0.47)',
-    USDC: 'rgba(0, 163, 255, 0.45)',
-    USN: 'rgba(255, 255, 255, 0.45)',
-    cUSD: 'rgba(69, 205, 133, 0.6)',
-    HBTC: '#4D85F8',
-    WBTC: '#ED9234',
-    STNEAR: 'rgba(160, 160, 255, 0.5)',
-    NEAR: 'rgba(0, 198, 162, 0.5)',
-    LINEAR: 'rgba(64, 129, 255, 0.5)',
-    NEARX: '#4d5971',
-    NearX: '#4d5971',
-  };
 
   const noBorderTokens = ['LINEAR'];
 
@@ -151,7 +154,7 @@ function TokenChart({
           return (
             <Cell
               key={`cell-${index}`}
-              fill={color[tokens[index].symbol]}
+              fill={colorMainnet[tokens[index].id]}
               stroke=""
             />
           );
